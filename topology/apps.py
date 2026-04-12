@@ -1,5 +1,7 @@
 from django.apps import AppConfig
 
-
 class TopologyConfig(AppConfig):
-    name = 'topology'
+  name = 'topology'
+    
+  def ready(self):
+    import topology.signals
