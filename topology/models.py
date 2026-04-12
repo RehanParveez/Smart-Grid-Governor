@@ -19,7 +19,7 @@ class Substation(models.Model):
 class Feeder(models.Model):
   substation = models.ForeignKey(Substation, on_delete=models.CASCADE, related_name = 'feeders')
   code = models.CharField(max_length=50, unique=True)
-  curr_load_mw = models.DecimalField(max_digits=12, decimal_places=2)
+  curr_load_mw = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
   is_shedding_active = models.BooleanField(default=False)
   is_energized = models.BooleanField(default=True) 
 
