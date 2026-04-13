@@ -23,5 +23,6 @@ urlpatterns = [
   path('tokenobtain/', TokenObtainPairView.as_view(), name='token_obtain'),
   path('tokenrefresh/', TokenRefreshView.as_view(), name='token_refresh'),
   path('accounts/', include('accounts.urls')),
-  path('topology/', include('topology.urls'))
+  path('topology/', include('topology.urls')),
+  path('resources/', include('resources.urls')),
 ]

@@ -8,7 +8,7 @@ class FuelTypeAdmin(admin.ModelAdmin):
   
 @admin.register(PowerSource)
 class PowerSourceAdmin(admin.ModelAdmin):
-  list_display = ['name', 'location', 'owner_type', 'grid_zone', 'payload', 'created_at']
+  list_display = ['name', 'location', 'owner_type', 'grid_zone', 'created_at', 'updated_at']
   
 @admin.register(GenerationUnit)
 class GenerationUnitAdmin(admin.ModelAdmin):

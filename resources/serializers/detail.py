@@ -13,3 +13,4 @@ class GenerationUnitSerializer(serializers.ModelSerializer):
     model = GenerationUnit
     fields = ['source_name', 'fuel_name', 'unit_name', 'installed_capacity_mw', 'curr_output_mw', 
       'cost_per_unit', 'operational']
+    

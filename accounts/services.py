@@ -1,4 +1,5 @@
 from topology.models import Grid, Substation, Feeder, Transformer, Branch
+from resources.models import GenerationUnit, PowerSource
 
 class AccessControlService:
   @staticmethod
@@ -29,4 +30,12 @@ class AccessControlService:
     if isinstance(node, Branch):
       if node.transformer.feeder.substation.zone == user.zone:
         return True
+    
+    if isinstance(node, GenerationUnit):
+      if node.source.grid_zone == user.zone:
+        return True
+    if isinstance(node, PowerSource):
+      if node.grid_zone == user.zone:
+        return True
+    
     return False

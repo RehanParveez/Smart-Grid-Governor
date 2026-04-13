@@ -10,9 +10,7 @@ class GenerationPlanner:
 
   @staticmethod
   def merit_order():
-    active_units = GenerationUnit.objects.filter(operational=True, curr_output_mw__gt=0
-      ).order_by('cost_per_unit')
-        
+    active_units = GenerationUnit.objects.filter(operational=True).order_by('cost_per_unit')  
     return active_units
 
   @staticmethod
