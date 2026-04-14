@@ -1,15 +1,17 @@
 from rest_framework import viewsets
-from topology.serializers.detail import FeederSerializer, GridSerializer
-from topology.models import Feeder, Grid
+from topology.serializers.detail import FeederSerializer, GridSerializer, BranchSerializer
+from topology.models import Feeder, Grid, Branch
 from smart_grid_governor.core.permissions import ZoneManagerPermission
 from rest_framework.decorators import action
 from topology.services import TopologyTreeService
 from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class FeederViewSet(viewsets.ModelViewSet):
   serializer_class = FeederSerializer
   queryset = Feeder.objects.all()
   permission_classes = [ZoneManagerPermission]
+  authentication_classes = [JWTAuthentication]
      
   def get_queryset(self):
     user = self.request.user
@@ -30,6 +32,7 @@ class GridViewSet(viewsets.ModelViewSet):
   serializer_class = GridSerializer
   queryset = Grid.objects.all()
   permission_classes = [ZoneManagerPermission] 
+  authentication_classes = [JWTAuthentication]
     
   def get_queryset(self):
     user = self.request.user
@@ -51,3 +54,15 @@ class GridViewSet(viewsets.ModelViewSet):
 
     data = TopologyTreeService.recursive_structure(zone_id)
     return Response(data)
+
+class BranchViewSet(viewsets.ModelViewSet):
+  serializer_class = BranchSerializer
+  queryset = Branch.objects.all()
+  permission_classes = [ZoneManagerPermission]
+  authentication_classes = [JWTAuthentication]
+
+  def get_queryset(self):
+    user = self.request.user
+    if user.control == 'admin':
+      return self.queryset
+    return self.queryset.filter(transformer__feeder__substation__zone=user.zone)

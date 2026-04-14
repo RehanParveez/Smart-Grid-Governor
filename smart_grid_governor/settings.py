@@ -53,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'accounts.middleware.SovereignAuditMiddleware',
     'topology.middleware.GridLockdownMiddleware',
+    'economics.middleware.EconomicsRoleMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]

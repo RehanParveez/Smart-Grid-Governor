@@ -1,11 +1,18 @@
 from django.http import JsonResponse
 from django.core.cache import cache
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class GridLockdownMiddleware:
   def __init__(self, get_response):
     self.get_response = get_response
 
   def __call__(self, request):
+    path = request.path
+    if not request.user.is_authenticated:
+      if not path.startswith('/tokenobtain/'):
+        auth_res = JWTAuthentication().authenticate(request)
+        if auth_res:
+          request.user = auth_res[0]
     lockdown_active = cache.get('GRID_LOCKDOWN_ENABLED')
 
     if lockdown_active == True:

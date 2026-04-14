@@ -1,5 +1,6 @@
 from topology.models import Grid, Substation, Feeder, Transformer, Branch
 from resources.models import GenerationUnit, PowerSource
+from economics.models import BillingAcc, FeedFinanHealth
 
 class AccessControlService:
   @staticmethod
@@ -36,6 +37,13 @@ class AccessControlService:
         return True
     if isinstance(node, PowerSource):
       if node.grid_zone == user.zone:
+        return True
+    
+    if isinstance(node, BillingAcc):
+      if node.branch.transformer.feeder.substation.zone == user.zone:
+        return True
+    if isinstance(node, FeedFinanHealth):
+      if node.feeder.substation.zone == user.zone:
         return True
     
     return False

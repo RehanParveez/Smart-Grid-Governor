@@ -25,4 +25,5 @@ urlpatterns = [
   path('accounts/', include('accounts.urls')),
   path('topology/', include('topology.urls')),
   path('resources/', include('resources.urls')),
+  path('economics/', include('economics.urls'))
 ]
