@@ -8,14 +8,20 @@ class GridLockdownMiddleware:
 
   def __call__(self, request):
     path = request.path
+    
+    if path.startswith('/tokenobtain/'):
+        return self.get_response(request)
+      
     if not request.user.is_authenticated:
-      if not path.startswith('/tokenobtain/'):
-        auth_res = JWTAuthentication().authenticate(request)
-        if auth_res:
-          request.user = auth_res[0]
+      auth_res = JWTAuthentication().authenticate(request)
+      if auth_res:
+        request.user = auth_res[0]
     lockdown_active = cache.get('GRID_LOCKDOWN_ENABLED')
 
     if lockdown_active == True:
+      if path.startswith('/metering/metering/submit_reading/') or '/verify_theft/' in path:
+        return self.get_response(request)
+      
       write_methods = ['POST', 'PATCH', 'PUT', 'DELETE']
             
       if request.method in write_methods:
@@ -26,5 +32,5 @@ class GridLockdownMiddleware:
         else:
           return JsonResponse({'err': 'authen is need.'}, status=401)
 
-    response = self.get_response(request)
-    return response
+    resp = self.get_response(request)
+    return resp

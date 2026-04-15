@@ -1,6 +1,7 @@
 from topology.models import Grid, Substation, Feeder, Transformer, Branch
 from resources.models import GenerationUnit, PowerSource
 from economics.models import BillingAcc, FeedFinanHealth
+from metering.models import LossAbnormality
 
 class AccessControlService:
   @staticmethod
@@ -45,5 +46,18 @@ class AccessControlService:
     if isinstance(node, FeedFinanHealth):
       if node.feeder.substation.zone == user.zone:
         return True
+    
+    if isinstance(node, LossAbnormality):
+      target = node.branch
+
+      if isinstance(target, Substation):
+        if target.zone == user.zone:
+          return True
+      if isinstance(target, Feeder):
+        if target.substation.zone == user.zone:
+          return True
+      if isinstance(target, Transformer):
+        if target.feeder.substation.zone == user.zone:
+          return True
     
     return False
