@@ -5,11 +5,25 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import action
 from metering.services import EnergyAuditService
 from rest_framework.response import Response
+from smart_grid_governor.core.permissions import ZoneManagerPermission
 
 class MeteringViewSet(viewsets.ModelViewSet):
   serializer_class = LossAbnormalitySerializer
   queryset = LossAbnormality.objects.all()
   authentication_classes = [JWTAuthentication]
+  permission_classes = [ZoneManagerPermission]
+  
+  def get_queryset(self):
+    user = self.request.user 
+    if user.control == 'admin':
+      return LossAbnormality.objects.all()
+    if user.zone:
+      subs_cases = self.queryset.filter(substation__zone=user.zone)
+      feeder_cases = self.queryset.filter(feeder__substation__zone=user.zone)
+      trans_cases = self.queryset.filter(transformer__feeder__substation__zone=user.zone)
+      return (subs_cases | feeder_cases | trans_cases).distinct()
+
+    return LossAbnormality.objects.none()
 
   @action(detail=False, methods=['post'])
   def submit_reading(self, request):

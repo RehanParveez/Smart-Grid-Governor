@@ -26,5 +26,6 @@ urlpatterns = [
   path('topology/', include('topology.urls')),
   path('resources/', include('resources.urls')),
   path('economics/', include('economics.urls')),
-  path('metering/', include('metering.urls'))
+  path('metering/', include('metering.urls')),
+  path('prioritization/', include('prioritization.urls'))
 ]
