@@ -1,6 +1,6 @@
 from django.http import JsonResponse
-from django.core.cache import cache
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from scheduler.models import Cycle
 
 class GridLockdownMiddleware:
   def __init__(self, get_response):
@@ -16,10 +16,23 @@ class GridLockdownMiddleware:
       auth_res = JWTAuthentication().authenticate(request)
       if auth_res:
         request.user = auth_res[0]
-    lockdown_active = cache.get('GRID_LOCKDOWN_ENABLED')
+        
+    lockdown_active = False
+    if request.user.is_authenticated:
+      if request.user.zone:
+        active_cycles = Cycle.objects.filter(zone=request.user.zone, status = 'executing')
+        lockdown_active = active_cycles.exists()
 
     if lockdown_active == True:
-      if path.startswith('/metering/metering/submit_reading/') or '/verify_theft/' in path:
+      metering = '/metering/metering/submit_reading/' in path
+      theft_check = '/verify_theft/' in path
+      scheduler = '/scheduler/' in path
+      
+      if metering:
+        return self.get_response(request)
+      if theft_check:
+        return self.get_response(request)
+      if scheduler:
         return self.get_response(request)
       
       write_methods = ['POST', 'PATCH', 'PUT', 'DELETE']
