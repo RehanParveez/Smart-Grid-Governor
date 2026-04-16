@@ -17,7 +17,11 @@ class SovereignAuditMiddleware:
     if request.method in ['POST', 'PATCH', 'PUT', 'DELETE']:
       if request.user.is_authenticated:     
         ip = request.META.get('REMOTE_ADDR')
+        data_payload = request.POST.dict()
+        if not data_payload:
+          data_payload = getattr(request, 'data', None)
+
         AuditRecord.objects.create(user=request.user, action=request.method, endpoint=request.path,
-          ip_address=ip, payload=request.POST.dict() or None)
+          ip_address=ip, payload=data_payload)
 
     return resp

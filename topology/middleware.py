@@ -27,12 +27,18 @@ class GridLockdownMiddleware:
       metering = '/metering/metering/submit_reading/' in path
       theft_check = '/verify_theft/' in path
       scheduler = '/scheduler/' in path
+      execution_feedback = '/execution/hardware_callback/' in path
+      execution_pending = '/execution/pending/' in path
       
       if metering:
         return self.get_response(request)
       if theft_check:
         return self.get_response(request)
       if scheduler:
+        return self.get_response(request)
+      if execution_feedback:
+        return self.get_response(request)
+      if execution_pending:
         return self.get_response(request)
       
       write_methods = ['POST', 'PATCH', 'PUT', 'DELETE']
