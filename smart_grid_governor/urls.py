@@ -27,5 +27,6 @@ urlpatterns = [
   path('resources/', include('resources.urls')),
   path('economics/', include('economics.urls')),
   path('metering/', include('metering.urls')),
-  path('prioritization/', include('prioritization.urls'))
+  path('prioritization/', include('prioritization.urls')),
+  path('scheduler/', include('scheduler.urls'))
 ]

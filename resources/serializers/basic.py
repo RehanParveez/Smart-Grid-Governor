@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from resources.models import FuelType, GenerationUnit
+from resources.models import FuelType, GenerationUnit, GenerationRecord
 
 class FuelTypeSerializer1(serializers.ModelSerializer):
   class Meta:
@@ -10,3 +10,8 @@ class GenerationUnitSerializer1(serializers.ModelSerializer):
   class Meta:
     model = GenerationUnit
     fields = ['unit_name', 'installed_capacity_mw']
+    
+class GenerationRecordSerializer1(serializers.ModelSerializer):
+  class Meta:
+    model = GenerationRecord
+    fields = [['unit', 'output_mw', 'recorded_at']]

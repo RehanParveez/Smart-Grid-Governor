@@ -3,6 +3,7 @@ from resources.models import GenerationUnit, PowerSource
 from economics.models import BillingAcc, FeedFinanHealth
 from metering.models import LossAbnormality
 from prioritization.models import FeedPriorScore
+from scheduler.models import SheddingTarget, Cycle
 
 class AccessControlService:
   @staticmethod
@@ -63,6 +64,13 @@ class AccessControlService:
     
     if isinstance(node, FeedPriorScore):
       if node.feeder.substation.zone == user.zone:
+        return True
+    
+    if isinstance(node, SheddingTarget):
+      if node.zone == user.zone:
+        return True
+    if isinstance(node, Cycle):
+      if node.zone == user.zone:
         return True
     
     return False

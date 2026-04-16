@@ -1,10 +1,12 @@
 from rest_framework import serializers
 from economics.models import BillingAcc, PaymentRec, FeedFinanHealth
+from economics.serializers.basic import PaymentRecSerializer1
 
 class BillingAccSerializer(serializers.ModelSerializer):
+  payments = PaymentRecSerializer1(many=True, read_only=True)
   class Meta:
     model = BillingAcc
-    fields = ['user', 'branch', 'balance', 'culprit']
+    fields = ['user', 'branch', 'payments', 'balance', 'culprit']
 
 class PaymentRecSerializer(serializers.ModelSerializer):
   class Meta:

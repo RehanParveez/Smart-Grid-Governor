@@ -23,7 +23,7 @@ class EconomicsViewSet(viewsets.ModelViewSet):
         
     return self.queryset.none()
     
-  @action(detail=False, methods=['get'], url_path='feeder/(?P<feeder_id>[^/.]+)/health')
+  @action(detail=False, methods=['get', 'patch'], url_path='feeder/(?P<feeder_id>[^/.]+)/health')
   def feeder_health(self, request, feeder_id=None):
     feeder = Feeder.objects.filter(pk=feeder_id)
     feeder = feeder.first()

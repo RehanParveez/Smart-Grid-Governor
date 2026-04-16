@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'economics',
     'metering',
     'prioritization',
+    'scheduler',
     'django_celery_beat'
 ]
 

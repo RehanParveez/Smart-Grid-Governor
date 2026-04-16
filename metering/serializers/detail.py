@@ -1,10 +1,12 @@
 from rest_framework import serializers
 from metering.models import BranchMeter, MeterReading, LossAbnormality
+from metering.serializers.basic import MeterReadingSerializer1
 
 class BranchMeterSerializer(serializers.ModelSerializer):
+  readings = MeterReadingSerializer1(many=True, read_only=True)
   class Meta:
     model = BranchMeter
-    fields = ['meter_serial', 'is_active']
+    fields = ['meter_serial', 'is_active', 'readings']
 
 class MeterReadingSerializer(serializers.ModelSerializer):
   class Meta:
