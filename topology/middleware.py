@@ -29,6 +29,8 @@ class GridLockdownMiddleware:
       scheduler = '/scheduler/' in path
       execution_feedback = '/execution/hardware_callback/' in path
       execution_pending = '/execution/pending/' in path
+      tasks = '/tasks/' in path
+      responders = '/responders/' in path
       
       if metering:
         return self.get_response(request)
@@ -40,12 +42,16 @@ class GridLockdownMiddleware:
         return self.get_response(request)
       if execution_pending:
         return self.get_response(request)
+      if tasks:
+        return self.get_response(request)
+      if responders:
+        return self.get_response(request)
       
       write_methods = ['POST', 'PATCH', 'PUT', 'DELETE']
             
       if request.method in write_methods:
         if request.user.is_authenticated:
-          if request.user.control != 'admin':
+          if request.user.control not in ['admin', 'officer', 'engineer']:
             return JsonResponse(
               {'err': 'System Lockdown Active', 'message': 'The grid is curr under optim.'}, status=503)
         else:

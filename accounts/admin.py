@@ -10,4 +10,3 @@ class UserAdmin(admin.ModelAdmin):
 class AuditRecordAdmin(admin.ModelAdmin):
   list_display = ['user', 'action', 'endpoint', 'ip_address', 'payload', 'created_at']
   
-

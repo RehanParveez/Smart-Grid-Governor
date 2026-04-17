@@ -9,6 +9,16 @@
             "name": "Grid_Governorr",
             "database": "Grid_Governor",
             "username": "postgres"
+        },
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "Grid_Governor_Postges",
+            "database": "Grid_Governor",
+            "username": "postgres"
         }
     ]
 }

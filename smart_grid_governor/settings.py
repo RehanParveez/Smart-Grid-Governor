@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'prioritization',
     'scheduler',
     'execution',
+    'responders',
+    'tasks',
     'django_celery_beat'
 ]
 
@@ -58,6 +60,7 @@ MIDDLEWARE = [
     'accounts.middleware.SovereignAuditMiddleware',
     'topology.middleware.GridLockdownMiddleware',
     'economics.middleware.EconomicsRoleMiddleware',
+    'tasks.middleware.MaintenanceMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -136,7 +139,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 REST_FRAMEWORK = {
   'DEFAULT_AUTHENTICATION_CLASSES': (
-    'rest_framework.authentication.SessionAuthentication',
+    # 'rest_framework.authentication.SessionAuthentication',
     'rest_framework_simplejwt.authentication.JWTAuthentication',
    )
  }

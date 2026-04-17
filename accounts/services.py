@@ -5,6 +5,8 @@ from metering.models import LossAbnormality
 from prioritization.models import FeedPriorScore
 from scheduler.models import SheddingTarget, Cycle
 from execution.models import GridWork, CancelRecord
+from tasks.models import Maintenance
+from responders.models import Team
 
 class AccessControlService:
   @staticmethod
@@ -79,6 +81,14 @@ class AccessControlService:
         return True
     if isinstance(node, CancelRecord):
       if node.feeder.substation.zone == user.zone:
+        return True
+    
+    if isinstance(node, Maintenance):
+      if node.assigned and node.assigned.zone == user.zone:
+        return True
+    
+    if isinstance(node, Team):
+      if node.zone == user.zone:
         return True
     
     return False
