@@ -6,6 +6,7 @@ from scheduler.serializers.detail import SheddingTargetSerializer, CycleSerializ
 from scheduler.services import LoadSheddingOptimizer
 from smart_grid_governor.core.permissions import ZoneManagerPermission
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from events.services import EventBus
 
 class SheddingTargetViewSet(viewsets.ModelViewSet):
   serializer_class = SheddingTargetSerializer
@@ -61,7 +62,12 @@ class CycleViewSet(viewsets.ModelViewSet):
     cycle = self.get_object()
         
     if cycle.status == 'draft':
+      target_grid = cycle.zone
       cycle.status = 'approved'
       cycle.save()
+      
+      EventBus.publish(kind = 'stress', zone=target_grid, actor=request.user, target=cycle,
+        payload={'recovery': 30, 'action': 'cycle_approval'})
+      
       return Response({'msg': 'the cycle is appro.'}) 
     return Response({'err': 'this cycle cant be appro.'}, status=400)

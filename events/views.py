@@ -1,0 +1,28 @@
+from rest_framework import viewsets
+from events.serializers import AuditRecordSerializer
+from events.models import AuditRecord
+from smart_grid_governor.core.permissions import SovereignPermission, ZoneManagerPermission
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+class EventViewSet(viewsets.ReadOnlyModelViewSet):
+  serializer_class = AuditRecordSerializer
+  queryset = AuditRecord.objects.all()
+  permission_classes = [SovereignPermission]
+  
+  def get_queryset(self):
+    user = self.request.user
+    if user.control == 'admin':
+      return self.queryset.all().select_related('user', 'zone') 
+    allowed_staff = ['officer', 'engineer']
+    
+    if user.control in allowed_staff:
+      if user.zone:
+        return self.queryset.filter(zone=user.zone).select_related('user', 'zone')  
+    return self.queryset.none()
+
+  @action(detail=False, methods=['get'], permission_classes=[ZoneManagerPermission])
+  def stream(self, request):
+    criti_stream = self.get_queryset().filter(kind__in=['stress', 'theft']).order_by('-created_at')[:50]
+    serializer = self.get_serializer(criti_stream, many=True)
+    return Response(serializer.data)

@@ -31,5 +31,7 @@ urlpatterns = [
   path('scheduler/', include('scheduler.urls')),
   path('execution/', include('execution.urls')),
   path('responders/', include('responders.urls')),
-  path('tasks/', include('tasks.urls'))
+  path('tasks/', include('tasks.urls')),
+  path('events/', include('events.urls')),
+  path('notifications/', include('notifications.urls')),
 ]

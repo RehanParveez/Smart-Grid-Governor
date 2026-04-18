@@ -1,5 +1,5 @@
 from decimal import Decimal
-from .models import PriorityWeight, FeedPriorScore
+from prioritization.models import PriorityWeight, FeedPriorScore
 from economics.models import FeedFinanHealth
 from metering.models import LossAbnormality
 

@@ -7,6 +7,8 @@ from scheduler.models import SheddingTarget, Cycle
 from execution.models import GridWork, CancelRecord
 from tasks.models import Maintenance
 from responders.models import Team
+from events.models import AuditRecord
+from notifications.models import Alert
 
 class AccessControlService:
   @staticmethod
@@ -89,6 +91,14 @@ class AccessControlService:
     
     if isinstance(node, Team):
       if node.zone == user.zone:
+        return True
+    
+    if isinstance(node, AuditRecord):
+      if node.zone == user.zone:
+        return True
+            
+    if isinstance(node, Alert):
+      if node.user.zone == user.zone:
         return True
     
     return False

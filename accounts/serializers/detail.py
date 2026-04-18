@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import User, AuditRecord
+from accounts.models import User
 
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
@@ -19,9 +19,3 @@ class UserSerializer(serializers.ModelSerializer):
     )
     return user
 
-class AuditRecordSerializer(serializers.ModelSerializer):
-  user_name = serializers.ReadOnlyField(source='user.username')
-  class Meta:
-    model = AuditRecord
-    fields = ['user_name', 'action', 'endpoint', 'ip_address', 'payload', 'created_at']
-    read_only_fields = ['created_at', 'payload']

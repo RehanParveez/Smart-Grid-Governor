@@ -1,5 +1,5 @@
-from accounts.models import AuditRecord
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from events.services import EventBus
 
 class SovereignAuditMiddleware:
   def __init__(self, get_response):
@@ -20,8 +20,38 @@ class SovereignAuditMiddleware:
         data_payload = request.POST.dict()
         if not data_payload:
           data_payload = getattr(request, 'data', None)
+        
+        event_kind = 'command'
+        if 'loss' in path:
+          event_kind = 'theft'   
+        if 'abnormality' in path:
+          event_kind = 'theft'     
+        if 'theft' in path:
+          event_kind = 'theft'
+        if 'stress' in path:
+          event_kind = 'stress'      
+        if 'shedding' in path:
+          event_kind = 'stress'  
+        if 'cycle' in path:
+          event_kind = 'stress'
+        if 'load' in path:
+          event_kind = 'stress'   
+        if 'recovery' in path:
+          event_kind = 'stress'
+        if 'billing' in path:
+          event_kind = 'economy'      
+        if 'payment' in path:
+          event_kind = 'economy'      
+        if 'revenue' in path:
+          event_kind = 'economy'
+        if 'maintenance' in path:
+          event_kind = 'work'      
+        if 'gridwork' in path:
+          event_kind = 'work'      
+        if 'task' in path:
+          event_kind = 'work'
 
-        AuditRecord.objects.create(user=request.user, action=request.method, endpoint=request.path,
-          ip_address=ip, payload=data_payload)
+        EventBus.publish(kind=event_kind, zone=getattr(request.user, 'zone', None), actor=request.user,
+          target=None, payload={'action': f'{request.method}_{path}', 'data': data_payload, 'ip': ip})
 
     return resp

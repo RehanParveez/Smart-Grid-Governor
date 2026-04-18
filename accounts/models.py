@@ -25,14 +25,3 @@ class User(AbstractUser, BaseModel):
     
   def __str__(self):
     return f'{self.username}'
-
-class AuditRecord(models.Model):
-  user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name = 'audit_records')
-  action = models.CharField(max_length=90)
-  endpoint = models.CharField(max_length=100)
-  ip_address = models.GenericIPAddressField(null=True)
-  payload = models.JSONField(null=True)
-  created_at = models.DateTimeField(auto_now_add=True)
-
-  def __str__(self):
-    return f'{self.user} {self.action} at {self.created_at}'
