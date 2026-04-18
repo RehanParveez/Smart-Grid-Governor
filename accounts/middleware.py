@@ -13,14 +13,23 @@ class SovereignAuditMiddleware:
         if auth_res:
           request.user = auth_res[0]
     resp = self.get_response(request)
-
+    
+    should_audit = False
     if request.method in ['POST', 'PATCH', 'PUT', 'DELETE']:
+      should_audit = True
+    if 'analytics' in path:
+      should_audit = True
+    if should_audit:
+      
       if request.user.is_authenticated:     
         ip = request.META.get('REMOTE_ADDR')
-        data_payload = request.POST.dict()
-        if not data_payload:
-          data_payload = getattr(request, 'data', None)
-        
+        if request.method == 'GET':
+          data_payload = request.GET.dict()
+        else:
+          data_payload = request.POST.dict()
+          if not data_payload:
+            data_payload = getattr(request, 'data', None)
+            
         event_kind = 'command'
         if 'loss' in path:
           event_kind = 'theft'   
@@ -50,6 +59,14 @@ class SovereignAuditMiddleware:
           event_kind = 'work'      
         if 'task' in path:
           event_kind = 'work'
+        if 'analytics' in path:
+            event_kind = 'economy'
+        if 'circular-debt' in path:
+            event_kind = 'economy'
+        if 'efficiency' in path:
+            event_kind = 'economy'
+        if 'predict' in path:
+            event_kind = 'stress'
 
         EventBus.publish(kind=event_kind, zone=getattr(request.user, 'zone', None), actor=request.user,
           target=None, payload={'action': f'{request.method}_{path}', 'data': data_payload, 'ip': ip})

@@ -7,6 +7,7 @@ from economics.services import RevenueAnalyService
 from rest_framework.response import Response
 from smart_grid_governor.core.permissions import ZoneManagerPermission
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import viewsets, mixins
 
 class EconomicsViewSet(viewsets.ModelViewSet):
   serializer_class = FeedFinanHealthSerializer
@@ -57,7 +58,7 @@ class EconomicsViewSet(viewsets.ModelViewSet):
         counter = counter + 1
     return Response({'msg': 'the sync is done', 'count': counter}, status=201)
 
-class PaymentViewSet(viewsets.ReadOnlyModelViewSet):
+class PaymentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
   queryset = PaymentRec.objects.all()
   serializer_class = PaymentRecSerializer
   permission_classes = [ZoneManagerPermission]

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'tasks',
     'events',
     'notifications',
+    'analytics',
     'django_celery_beat'
 ]
 
