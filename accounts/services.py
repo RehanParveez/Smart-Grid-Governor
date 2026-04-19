@@ -13,13 +13,16 @@ from notifications.models import Alert
 class AccessControlService:
   @staticmethod
   def zone_permission(user, node):
-    if user.control == 'admin':
-      return True
+    if user is None:
+      return False
     if user.is_authenticated == False:
       return False
-
+    
+    if user.control == 'admin':
+      return True
     if user.zone == None:
       return False
+    
     if isinstance(node, Grid):
       if node == user.zone:
           return True
@@ -81,7 +84,7 @@ class AccessControlService:
     if isinstance(node, Maintenance):
       if node.assigned and node.assigned.zone == user.zone:
         return True
-      return AccessControlService.check_gfk_jurisdiction(user, node.target)
+      return AccessControlService.check_gfk_jurisdiction(user, node.branch)
       
     if isinstance(node, Team):
       if node.zone == user.zone:
@@ -112,3 +115,5 @@ class AccessControlService:
       return target.transformer.feeder.substation.zone == user.zone
             
     return False
+  
+  

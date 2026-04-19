@@ -1,6 +1,7 @@
 from decimal import Decimal
 from economics.models import BillingAcc, PaymentRec, FeedFinanHealth
 from django.db.models import Sum
+from django.core.cache import cache
 
 class RevenueAnalyService:
   @staticmethod
@@ -27,4 +28,7 @@ class RevenueAnalyService:
 
     health.tot_defecit = target_rev - total_recov 
     health.save()
+    cache_key = f'feeder {feeder_instance.id} reco_perf'
+    cache.set(cache_key, float(health.reco_percent), 86400)
+    
     return health

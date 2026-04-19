@@ -1,5 +1,4 @@
-from topology.models import Feeder, Transformer, Branch
-from topology.models import Grid
+from topology.models import Feeder, Transformer, Branch, Grid
 from django.core.cache import cache
 
 class TopologyTreeService:

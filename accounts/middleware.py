@@ -54,7 +54,9 @@ class SovereignAuditMiddleware:
         if 'revenue' in path:
           event_kind = 'economy'
         if 'maintenance' in path:
-          event_kind = 'work'      
+          event_kind = 'work' 
+        if 'economics' in path:
+          event_kind = 'economy'     
         if 'gridwork' in path:
           event_kind = 'work'      
         if 'task' in path:
