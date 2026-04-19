@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from metering.models import BranchMeter, MeterReading, LossAbnormality
 from django.db.models import Sum
 from decimal import Decimal
+from django.core.cache import cache
 
 class EnergyAuditService:
   @staticmethod
@@ -48,3 +49,36 @@ class EnergyAuditService:
         return new_abnor
                 
     return None
+
+  @staticmethod
+  def upd_load(meter, new_read):
+    branch = meter.branch
+    
+    if not hasattr(branch, 'transformer'):
+        return None
+    feeder = branch.transformer.feeder
+    zone_id = feeder.substation.zone_id
+    last_read = MeterReading.objects.filter(meter=meter).exclude(id=new_read.id).order_by('-created_at')
+    last_read = last_read.first()
+    
+    if last_read:
+      prev_val = last_read.energy_in_kwh
+    else:
+      prev_val = Decimal('0.00')
+    change_in_energy = new_read.energy_in_kwh - prev_val
+    delta = float(change_in_energy)
+
+    f_key = f'feeder {feeder.id} load'
+    z_key = f'zone {zone_id} demand'
+    
+    cached_f_val = cache.get(f_key, feeder.curr_load_mw)
+    new_f_load = float(cached_f_val) + delta
+    cache.set(f_key, new_f_load, 3600)
+
+    z_demand = cache.get(z_key)
+    if z_demand is not None:
+      new_z_load = float(z_demand) + delta
+      cache.set(z_key, new_z_load, 3600)
+
+    feeder.curr_load_mw = Decimal(str(new_f_load))
+    feeder.save(update_fields=['curr_load_mw'])

@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from topology.services import TopologyTreeService
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.core.cache import cache
 
 class FeederViewSet(viewsets.ModelViewSet):
   serializer_class = FeederSerializer
@@ -17,7 +18,14 @@ class FeederViewSet(viewsets.ModelViewSet):
     user = self.request.user
     if user.control == 'admin':
       return self.queryset
-    return self.queryset.filter(substation__zone=user.zone)
+    
+    cache_key = f'zone {user.zone.id} ids'
+    feeder_ids = cache.get(cache_key)
+    if feeder_ids is None:
+      feeder_ids = list(self.queryset.filter(substation__zone=user.zone).values_list('id', flat=True))
+      cache.set(cache_key, feeder_ids, 3600)
+    
+    return self.queryset.filter(id__in=feeder_ids)
 
   @action(detail=True, methods=['patch'])
   def toggle(self, request, pk=None):

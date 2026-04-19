@@ -1,9 +1,15 @@
 from topology.models import Feeder, Transformer, Branch
 from topology.models import Grid
+from django.core.cache import cache
 
 class TopologyTreeService:
   @staticmethod
   def recursive_structure(zone_id):
+    cache_key = f'zone {zone_id} tree'
+    cached_tree = cache.get(cache_key)
+    if cached_tree:
+      return cached_tree
+    
     grid_exists = Grid.objects.filter(id=zone_id)
     grid_exists = grid_exists.exists()
     if not grid_exists:
@@ -24,6 +30,7 @@ class TopologyTreeService:
             
           transformer_list.append({'id': t.id, 'uid': t.uid, 'kva_rating': t.kva_rating, 'is_energized': t.is_energized,
             'branches': branch_list})
+          
 
         status_label = 'SHEDDING'
         if f.is_energized:
@@ -32,7 +39,9 @@ class TopologyTreeService:
           'transformers': transformer_list})
       substation_list.append({'id': sub.id, 'name': sub.name, 'feeders': feeder_list})
 
-    return {'grid_name': grid.name, 'substations': substation_list}
+    data = {'grid_name': grid.name, 'substations': substation_list}
+    cache.set(cache_key, data, 7200)
+    return data
     
   @staticmethod
   def feeder_power(feeder, requested_by):

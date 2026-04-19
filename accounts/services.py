@@ -1,7 +1,7 @@
 from topology.models import Grid, Substation, Feeder, Transformer, Branch
 from resources.models import GenerationUnit, PowerSource
 from economics.models import BillingAcc, FeedFinanHealth
-from metering.models import LossAbnormality
+from metering.models import LossAbnormality, BranchMeter
 from prioritization.models import FeedPriorScore
 from scheduler.models import SheddingTarget, Cycle
 from execution.models import GridWork, CancelRecord
@@ -55,18 +55,11 @@ class AccessControlService:
         return True
     
     if isinstance(node, LossAbnormality):
-      target = node.branch
-
-      if isinstance(target, Substation):
-        if target.zone == user.zone:
-          return True
-      if isinstance(target, Feeder):
-        if target.substation.zone == user.zone:
-          return True
-      if isinstance(target, Transformer):
-        if target.feeder.substation.zone == user.zone:
-          return True
+      return AccessControlService.check_gfk_jurisdiction(user, node.branch)
     
+    if isinstance(node, BranchMeter):
+      return AccessControlService.check_gfk_jurisdiction(user, node.branch)
+  
     if isinstance(node, FeedPriorScore):
       if node.feeder.substation.zone == user.zone:
         return True
@@ -88,7 +81,8 @@ class AccessControlService:
     if isinstance(node, Maintenance):
       if node.assigned and node.assigned.zone == user.zone:
         return True
-    
+      return AccessControlService.check_gfk_jurisdiction(user, node.target)
+      
     if isinstance(node, Team):
       if node.zone == user.zone:
         return True
@@ -96,9 +90,25 @@ class AccessControlService:
     if isinstance(node, AuditRecord):
       if node.zone == user.zone:
         return True
+      return AccessControlService.check_gfk_jurisdiction(user, node.target)
             
     if isinstance(node, Alert):
       if node.user.zone == user.zone:
         return True
     
+    return False
+  
+  @staticmethod
+  def check_gfk_jurisdiction(user, target):
+    if not target:
+      return False
+    if isinstance(target, Substation):
+      return target.zone == user.zone  
+    if isinstance(target, Feeder):
+      return target.substation.zone == user.zone    
+    if isinstance(target, Transformer):
+      return target.feeder.substation.zone == user.zone    
+    if isinstance(target, Branch):
+      return target.transformer.feeder.substation.zone == user.zone
+            
     return False

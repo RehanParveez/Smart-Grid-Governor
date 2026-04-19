@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from economics.serializers.detail import FeedFinanHealthSerializer, PaymentRecSerializer
 from economics.models import FeedFinanHealth, PaymentRec
 from rest_framework.decorators import action
@@ -7,7 +7,6 @@ from economics.services import RevenueAnalyService
 from rest_framework.response import Response
 from smart_grid_governor.core.permissions import ZoneManagerPermission
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework import viewsets, mixins
 
 class EconomicsViewSet(viewsets.ModelViewSet):
   serializer_class = FeedFinanHealthSerializer

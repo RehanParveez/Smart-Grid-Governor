@@ -42,4 +42,4 @@ class LossAbnormality(models.Model):
     indexes = [models.Index(fields=['content_type', 'object_id'])]
   
   def __str__(self):
-      return f'{self.loss_percentage} {self.severity.title()}'
+    return f'{self.loss_percentage} {self.severity.title()}'

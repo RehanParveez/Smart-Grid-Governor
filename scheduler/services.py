@@ -1,6 +1,7 @@
 from datetime import timedelta
 from prioritization.models import FeedPriorScore
 from scheduler.models import LoadBalPlan
+from django.core.cache import cache
 
 class LoadSheddingOptimizer:
   @staticmethod
@@ -23,6 +24,8 @@ class LoadSheddingOptimizer:
         break
             
       feeder = entry.feeder
+      f_key = f'feeder {feeder.id} load'
+      live_f_load = cache.get(f_key, float(feeder.curr_load_mw))
       critical = feeder.transformers.filter(branches__type = 'important')
       critical = critical.exists()
       if critical:
@@ -30,7 +33,7 @@ class LoadSheddingOptimizer:
       plan = LoadBalPlan(cycle=cycle, feeder=feeder, prior_at_exec=entry.final_score, rank_at_exec=entry.rank_in_zone, 
         planned_off_time=start_time, planned_on_time=end_time)
       plans_to_create.append(plan)
-      current_saved_mw += feeder.curr_load_mw
+      current_saved_mw += live_f_load
 
       if plans_to_create:
         LoadBalPlan.objects.bulk_create(plans_to_create)

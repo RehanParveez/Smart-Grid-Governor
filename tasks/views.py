@@ -5,21 +5,16 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from smart_grid_governor.core.permissions import ZoneManagerPermission
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from smart_grid_governor.core.mixins import GFKFilterMixin
 
-class TaskViewSet(viewsets.ModelViewSet):
+class TaskViewSet(viewsets.ModelViewSet, GFKFilterMixin):
   serializer_class = MaintenanceSerializer
   queryset = Maintenance.objects.all()
   permission_classes = [ZoneManagerPermission]
   authentication_classes = [JWTAuthentication]
   
   def get_queryset(self):
-    user = self.request.user
-    if user.control == 'admin':
-      return self.queryset
-    if user.zone:
-      return self.queryset.filter(assigned__zone=user.zone)
-        
-    return self.queryset.none()
+    return self.zone_filt_query(self.queryset, self.request.user)
 
   @action(detail=False, methods=['get'])
   def my_tasks(self, request):

@@ -4,8 +4,9 @@ from events.models import AuditRecord
 from smart_grid_governor.core.permissions import SovereignPermission, ZoneManagerPermission
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from smart_grid_governor.core.mixins import GFKFilterMixin
 
-class EventViewSet(viewsets.ReadOnlyModelViewSet):
+class EventViewSet(viewsets.ReadOnlyModelViewSet, GFKFilterMixin):
   serializer_class = AuditRecordSerializer
   queryset = AuditRecord.objects.all()
   permission_classes = [SovereignPermission]
@@ -14,13 +15,16 @@ class EventViewSet(viewsets.ReadOnlyModelViewSet):
     user = self.request.user
     if user.control == 'admin':
       return self.queryset.all().select_related('user', 'zone') 
-    allowed_staff = ['officer', 'engineer']
+    if not user.zone:
+      return self.queryset.none()
     
-    if user.control in allowed_staff:
-      if user.zone:
-        return self.queryset.filter(zone=user.zone).select_related('user', 'zone')  
-    return self.queryset.none()
-
+    direct_zone_recs = self.queryset.filter(zone=user.zone)
+    gfk_filtered_recs = self.zone_filt_query(self.queryset, user)
+    check_query = direct_zone_recs | gfk_filtered_recs
+    ret_query = check_query.distinct()
+    ret_query = ret_query.select_related('user', 'zone')
+    return ret_query
+    
   @action(detail=False, methods=['get'], permission_classes=[ZoneManagerPermission])
   def stream(self, request):
     criti_stream = self.get_queryset().filter(kind__in=['stress', 'theft']).order_by('-created_at')[:50]

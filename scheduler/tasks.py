@@ -8,6 +8,7 @@ from django.db.models import Sum
 from topology.models import Feeder, Grid
 from execution.models import GridWork
 from execution.services import GridCommandOperator
+from django.core.cache import cache
 
 @shared_task
 def dispa_commands(cycle_id):
@@ -50,17 +51,22 @@ def min_grid_load():
   supply_query = GenerationUnit.objects.filter(operational=True).aggregate(Sum('curr_output_mw'))
   supply = supply_query['curr_output_mw__sum']
   if supply == None:
-        supply = 0
-
-  demand_query = Feeder.objects.aggregate(Sum('curr_load_mw'))
-  demand = demand_query['curr_load_mw__sum']
-  if demand == None:
+    supply = 0
+    
+  grid_obj = Grid.objects.first()
+  if grid_obj:
+    z_key = f'zone {grid_obj.id} demand'
+    demand = cache.get(z_key)
+    
+    if demand is None:
+      demand_query = Feeder.objects.filter(substation__zone=grid_obj).aggregate(Sum('curr_load_mw'))
+      demand = demand_query['curr_load_mw__sum'] or 0
+      cache.set(z_key, float(demand), 3600)
+  else:
     demand = 0
+
   if demand > supply:
-    shortage = demand - supply
-    grid_obj = Grid.objects
-    grid_obj = grid_obj.first()
-        
+    shortage = demand - supply  
     if grid_obj:
       SheddingTarget.objects.create(zone=grid_obj, needed_red_mw=shortage, start_time=timezone.now(),
         expec_dura_mins=60, is_addressed=False)
