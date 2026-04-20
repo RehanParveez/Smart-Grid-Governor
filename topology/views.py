@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from topology.serializers.detail import FeederSerializer, GridSerializer, BranchSerializer
-from topology.models import Feeder, Grid, Branch
+from topology.serializers.detail import FeederSerializer, GridSerializer, BranchSerializer, SubstationSerializer, TransformerSerializer
+from topology.models import Feeder, Grid, Branch, Substation, Transformer
 from smart_grid_governor.core.permissions import ZoneManagerPermission
 from rest_framework.decorators import action
 from topology.services import TopologyTreeService
@@ -63,6 +63,30 @@ class GridViewSet(viewsets.ModelViewSet):
     data = TopologyTreeService.recursive_structure(zone_id)
     return Response(data)
 
+class SubstationViewSet(viewsets.ModelViewSet):
+  serializer_class = SubstationSerializer
+  queryset = Substation.objects.all()
+  permission_classes = [ZoneManagerPermission]
+  authentication_classes = [JWTAuthentication]
+
+  def get_queryset(self):
+    user = self.request.user
+    if user.control == 'admin':
+      return self.queryset
+    return self.queryset.filter(zone=user.zone)
+
+class TransformerViewSet(viewsets.ModelViewSet):
+  serializer_class = TransformerSerializer
+  queryset = Transformer.objects.all()
+  permission_classes = [ZoneManagerPermission]
+  authentication_classes = [JWTAuthentication]
+
+  def get_queryset(self):
+    user = self.request.user
+    if user.control == 'admin':
+      return self.queryset
+    return self.queryset.filter(feeder__substation__zone=user.zone)
+
 class BranchViewSet(viewsets.ModelViewSet):
   serializer_class = BranchSerializer
   queryset = Branch.objects.all()
@@ -74,3 +98,4 @@ class BranchViewSet(viewsets.ModelViewSet):
     if user.control == 'admin':
       return self.queryset
     return self.queryset.filter(transformer__feeder__substation__zone=user.zone)
+  

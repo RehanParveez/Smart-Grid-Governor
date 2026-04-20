@@ -19,5 +19,5 @@ class PowerSourceSerializer(serializers.ModelSerializer):
   units = GenerationUnitSerializer1(many=True, read_only=True)
   class Meta:
     model = PowerSource
-    fields = ['id', 'name', 'location', 'owner_type', 'units']
+    fields = ['id', 'name', 'location', 'owner_type', 'grid_zone', 'units']
     

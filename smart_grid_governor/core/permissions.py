@@ -14,8 +14,11 @@ class ZoneManagerPermission(permissions.BasePermission):
   def has_permission(self, request, view):
     if request.user.is_authenticated == False:
       return False
-    return True
-
+    if request.user.control == 'admin':
+      return True
+    allowed_staff = ['engineer', 'officer']
+    return request.user.control in allowed_staff
+  
   def has_object_permission(self, request, view, obj):
     if request.user.control == 'admin':
       return True

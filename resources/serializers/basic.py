@@ -9,7 +9,7 @@ class FuelTypeSerializer1(serializers.ModelSerializer):
 class GenerationUnitSerializer1(serializers.ModelSerializer):
   class Meta:
     model = GenerationUnit
-    fields = ['unit_name', 'installed_capacity_mw']
+    fields = ['unit_name', 'installed_capacity_mw', 'curr_output_mw']
     
 class GenerationRecordSerializer1(serializers.ModelSerializer):
   class Meta:

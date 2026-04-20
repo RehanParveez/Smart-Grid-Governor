@@ -1,6 +1,6 @@
 from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APITestCase
 from topology.models import Grid, Substation, Feeder, Transformer, Branch
 from smart_grid_governor.core.permissions import SovereignPermission, ZoneManagerPermission
 from unittest.mock import MagicMock, patch
@@ -14,7 +14,7 @@ from django.contrib.contenttypes.models import ContentType
 from tasks.models import Maintenance
 from accounts.models import User
 
-class ParentTest(TestCase):
+class ParentTest(APITestCase):
   def setUp(self):
     User = get_user_model()
     self.client = APIClient()
