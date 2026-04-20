@@ -13,6 +13,7 @@ from economics.models import BillingAcc
 from django.contrib.contenttypes.models import ContentType
 from tasks.models import Maintenance
 from accounts.models import User
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class ParentTest(APITestCase):
   def setUp(self):
@@ -27,7 +28,9 @@ class ParentTest(APITestCase):
     self.consumer = User.objects.create_user(username = 'citizen', email = 'citizen@gmail.com', control = 'consumer')
 
   def auth(self, user):
-    self.client.force_authenticate(user=user)
+    refresh = RefreshToken.for_user(user)
+    access_token = str(refresh.access_token)
+    self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
   
   def test_check(self):
     self.assertEqual(self.admin.username, 'admin')
@@ -50,7 +53,7 @@ class PermissionTest(ParentTest):
 
   def test_zone_manager_has_perm_authen(self):
     request = self.factory.get('/')
-    request.user = self.consumer
+    request.user = self.engineer_a
     perm = ZoneManagerPermission()
     self.assertTrue(perm.has_permission(request, None))
 

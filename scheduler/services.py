@@ -35,9 +35,9 @@ class LoadSheddingOptimizer:
       plans_to_create.append(plan)
       current_saved_mw += live_f_load
 
-      if plans_to_create:
-        LoadBalPlan.objects.bulk_create(plans_to_create)
+    if plans_to_create:
+      LoadBalPlan.objects.bulk_create(plans_to_create)
             
-      cycle.total_mw_saved = current_saved_mw
-      cycle.save()
-      return plans_to_create
+    cycle.total_mw_saved = current_saved_mw
+    cycle.save(update_fields=['total_mw_saved'])
+    return plans_to_create

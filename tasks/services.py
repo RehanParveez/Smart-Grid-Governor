@@ -1,5 +1,5 @@
 from django.db import transaction
-from topology.models import Branch, Transformer
+from topology.models import Branch, Transformer, Feeder
 from responders.models import Team
 from tasks.models import Maintenance, Investigation
 
@@ -14,6 +14,8 @@ class ShipService:
       zone = tar_branch.transformer.feeder.substation.zone
     elif isinstance(tar_branch, Transformer):
       zone = tar_branch.feeder.substation.zone
+    elif isinstance(tar_branch, Feeder): 
+      zone = tar_branch.substation.zone
     if not zone:
       return 'err: the branch is not link. to a valid grid zone'
 
