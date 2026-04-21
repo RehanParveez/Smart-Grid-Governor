@@ -11,3 +11,4 @@ class TeamSerializer(serializers.ModelSerializer):
   class Meta:
     model = Team
     fields = ['name', 'zone', 'capabilities', 'leader', 'members', 'is_active']
+    extra_kwargs = {'zone': {'required': False}, 'members': {'allow_empty': True, 'required': False}}
