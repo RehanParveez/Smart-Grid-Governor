@@ -1,9 +1,8 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from economics.models import PaymentRec
+from economics.models import PaymentRec, FeedFinanHealth
 from analytics.services import SustainabilityCheck, AnalyticsService
 from economics.services import RevenueAnalyService
-from economics.models import FeedFinanHealth
 from django.db.models import Sum
 from decimal import Decimal
 

@@ -31,6 +31,7 @@ class GridLockdownMiddleware:
       execution_pending = '/execution/pending/' in path
       tasks = '/tasks/' in path
       responders = '/responders/' in path
+      notifications = '/notifications/' in path
       
       if metering:
         return self.get_response(request)
@@ -45,6 +46,8 @@ class GridLockdownMiddleware:
       if tasks:
         return self.get_response(request)
       if responders:
+        return self.get_response(request)
+      if notifications: 
         return self.get_response(request)
       
       write_methods = ['POST', 'PATCH', 'PUT', 'DELETE']
